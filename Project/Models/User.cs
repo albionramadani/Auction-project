@@ -13,8 +13,6 @@ namespace Project.Models
         //[Required(AllowEmptyStrings = false, ErrorMessage = "Last Name is required.")]
         //[StringLength(20, MinimumLength = 4, ErrorMessage = "Last Name should be longer than three characters and maximum twenty")]
         public string LastName { get; set; }
-        public decimal WalletAmount { get; set; } = 1000.00m;
 
-        public ICollection<Auction> Auctions { get; set; }
     }
 }
