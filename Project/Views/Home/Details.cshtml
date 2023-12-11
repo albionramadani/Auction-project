@@ -1,0 +1,66 @@
+﻿@model Project.Models.AuctionList
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> userManager
+
+@{
+    ViewData["Title"] = "Details";
+    var remainingHours = (Model.EndDate - DateTime.Now).TotalHours;
+    var displayTimeRemaining = remainingHours > 24 ? $"{(int)Math.Ceiling(remainingHours / 24)} days" : $"{(int)remainingHours} hours";
+
+}
+
+
+
+<div class="container" style=" margin-top: 50px; margin-bottom: 50px; padding: 20px; border-radius:10px;">
+<div class="row">
+<h2 >@Model.Title</h2>
+
+<p>Created By:@Model.Username</p>
+</div>
+    <p>Time Remaining: @displayTimeRemaining</p>
+   
+    <div class="row">
+        
+        <div class="col col-xs-6 col-lg-7">
+            <div>Description: @Model.Description</div>
+            <p>Current Highest Bid: @Model.Price</p>    
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-action="AddBid" method="post">
+                    <div>
+                        Bid: $ <input type="number" min="@Model.Price" step="1" name="Price" placeholder="@Model.Price.ToString("N2")" />
+                        @if (ViewData.ModelState.ContainsKey("Price"))
+                        {
+                            <div class="text-danger">
+                                @Html.ValidationMessage("Price")
+                            </div>
+                        }
+                        <input type="hidden" name="IdentityUserId" class="form-control" value="@userManager.GetUserId(User)" />
+                        <input type="hidden" name="ListingId" class="form-control" value="@Model.Id" />
+                        <input type="submit" class="btn btn-primary">
+                    </div>
+                </form>
+                <p>Bids submitted: @Model.Bids.Count</p>
+                <br>
+                @*@if (userManager.GetUserId(User) == Model.IdentityUserId)
+                {
+                    @foreach (var bid in Model.Bids)
+                    {
+                        <ul style="list-style-type: none;">
+                            @bid.User.UserName bidded $@bid.Price.ToString("N2").
+                        </ul>
+                    }
+                }*@
+            }
+           
+               
+               
+              
+        </div>
+    </div>
+</div>
+
+<br>
+
+
+

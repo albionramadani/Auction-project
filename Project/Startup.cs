@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Project.Data.Services;
+
 using Project.Models;
 namespace Project
 {
@@ -26,6 +30,18 @@ namespace Project
             services.AddIdentity<User, IdentityRole>()
                     .AddEntityFrameworkStores<ApplicationDbContext>()
                     .AddDefaultTokenProviders();
+
+
+            services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            services.AddHangfireServer();
+            services.AddScoped<IUserCreditService, UserCreditService>();
+            services.AddScoped<IBidsService, BidsService>();
+
+            services.AddScoped<IActionListingsService,AuctionListingsService>();
 
             services.ConfigureApplicationCookie(config =>
             {
@@ -52,7 +68,9 @@ namespace Project
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseHangfireDashboard();
 
+            app.UseHangfireServer();
             app.UseRouting();
 
             app.UseAuthentication();

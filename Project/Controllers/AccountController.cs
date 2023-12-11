@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Project.Controllers;
+using Project.Data.Services;
 using Project.Models;
 
 namespace NewsApp.Controllers
@@ -10,10 +12,17 @@ namespace NewsApp.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
+        private readonly IUserCreditService _userCreditService;
+     
+
+
+        
         public AccountController(
+            IUserCreditService userCreditService,
             UserManager<User> userManager,
             SignInManager<User> signInManager)
         {
+            _userCreditService = userCreditService;
             _userManager = userManager;
             _signInManager = signInManager;
         }
@@ -45,8 +54,10 @@ namespace NewsApp.Controllers
                 var result = await _userManager.CreateAsync(user, userModel.Password);
                 if (result.Succeeded)
                 {
+                    await _userCreditService.CreditForNewUser(user.Id);
                     await _userManager.AddToRoleAsync(user, "User");
                     await _signInManager.SignInAsync(user, false);
+                    
                     return RedirectToAction("Index", "Home");
                 }
 

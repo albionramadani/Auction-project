@@ -7,19 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SeedData\DataInitializer.cs" />
+    <Content Include="Data\DataInitializer.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Models\DataInitializer.cs" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="SeedData\" />
-    <Folder Include="Views\Authentication\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="DataTables.AspNet.Mvc5" Version="2.0.2" />
+    <PackageReference Include="Hangfire" Version="1.8.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
@@ -33,6 +30,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.5.0" />
   </ItemGroup>
 
 </Project>

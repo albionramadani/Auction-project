@@ -19,13 +19,7 @@ namespace Project.Models
             }
 
 
-            if (!roleManager.RoleExistsAsync("Admin").Result)
-            {
-                var role = new IdentityRole();
-                role.Name = "Administrator";
-
-                _ = roleManager.CreateAsync(role).Result;
-            }
+          
         }
     }
 }

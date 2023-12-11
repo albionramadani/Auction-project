@@ -1,8 +1,128 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using System.Security.Claims;
+@model PaginatedList<Project.Models.AuctionList>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<!-- Add these references to your HTML file -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+
+<h2>Active Listings</h2>
+<a asp-action="Create" class="btn btn-primary" asp-controller="Home">Create new List</a>
+
+<style>
+    .odd-row {
+        background-color: #ffffff; /* White */
+    }
+
+    .even-row {
+        background-color: #f7f7f7; /* Light gray */
+    }
+</style>
+<table class="table table-bordered" id="listingTable">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Seller</th>
+            <th>Top Bid</th>
+            <th>Time Remaining</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var listing = Model[i];
+            <tr class="@(i % 2 == 0 ? "even-row" : "odd-row")">
+                <td><a asp-action="Details" asp-route-id="@listing.Id">@listing.Title</a></td>
+                <td>@listing.Username</td>
+                <td>$@listing.Price.ToString("N2")</td>
+                <td data-sort="@((listing.EndDate - DateTime.Now).TotalHours)">
+                     @{
+        var remainingTimeSpan = listing.EndDate - DateTime.Now;
+
+        if (remainingTimeSpan.TotalHours >= 24)
+        {
+            var days = (int)Math.Ceiling(remainingTimeSpan.TotalDays);
+            var displayTimeRemaining = $"{days} {(days == 1 ? "day" : "days")}";
+                            @displayTimeRemaining
+                        }
+                        else
+                        {
+                            var hours = (int)remainingTimeSpan.Hours;
+                            var minutes = (int)remainingTimeSpan.Minutes;
+                            if(hours >= 1)
+                            {
+
+                                var displayTimeRemaining = $"{hours} {(hours > 2 ? "hour" : "hours")}, {minutes} {(minutes == 1 ? "minute" : "minutes")}";
+                                @displayTimeRemaining
+                            }
+                            else
+                            {
+                                var displayTimeRemaining = $" {minutes} {(minutes == 1 ? "minute" : "minutes")}";
+                            @displayTimeRemaining
+                            }
+        }
+    }
+                </td>
+                <td>
+                    @if (listing.IdentityUserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    {
+                        <a asp-action="Delete" asp-route-id="@listing.Id" asp-controller="Home">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+        @if (Model.Count > 0)
+        {
+            
+        <p>Your Current Wallet: $@Model.FirstOrDefault().credits.Ammount</p>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p>No Active Listings</p>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="d-flex justify-content-center">
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       class="btn btn-default @prevDisabled">
+        Previous
+    </a>
+    <div class="btn" style="cursor: default">
+        Page @Model.PageIndex of @Model.TotalPages
+    </div>
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>
 </div>
+
+@section Scripts{
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+    <script>
+          $(document).ready(function () {
+            $('#listingTable').DataTable({
+                order: [[3, 'asc']],
+                searching: false, // Disable search
+                paging: false, // Disable pagination
+                lengthChange: false, // Disable "Show X entries" drop-down
+                columnDefs: [
+                    { targets: 'no-sort', orderable: false },
+                    { targets: [0, 1, 2], searchable: false }, // Disable searching for the first three columns (indexes 0, 1, 2)
+                    { targets: [3], searchable: true }
+                ]
+            });
+        });
+    </script>
+}
